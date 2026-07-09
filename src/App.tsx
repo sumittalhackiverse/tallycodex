@@ -9,6 +9,29 @@ const stages = ["About You", "Goals", "Cover", "Health", "Review"] as const;
 
 const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+const complianceControls = [
+  ["Collection notice", "Privacy purpose, disclosure, consequences, and contact details shown before sensitive data capture."],
+  ["Advice boundary", "AI output is labelled as guidance and routed to a licensed advisor before personal advice."],
+  ["Consent record", "Customer consent is versioned, timestamped, and linked to disclosures and advisor handoff."],
+  ["Audit trail", "Routing, AI summaries, advisor actions, and customer consent events are logged for review."]
+];
+
+const regulatoryMapping = [
+  ["ASIC RG 175", "Financial product advice conduct and disclosure", "General information warning, advisor review, advice boundary"],
+  ["OAIC APP 5", "Collection notice before or at collection", "Layered privacy notice and sensitive-health consent"],
+  ["Privacy Act / APPs", "Access, correction, disclosure, overseas handling", "Privacy request workflow and retention register"],
+  ["APRA CPS 230", "Operational risk, controls, accountability", "Audit events, data lineage, incident-ready controls"],
+  ["Life Insurance Code", "Plain-English service, vulnerability awareness", "Customer-friendly explanations and follow-up tracking"]
+];
+
+const auditTrail = [
+  ["09:42", "APP 5 collection notice displayed", "Customer"],
+  ["09:44", "Sensitive health consent accepted", "Customer"],
+  ["09:47", "Route C generated with explainability reasons", "AI triage"],
+  ["09:49", "Advisor review required before recommendation", "Compliance guardrail"],
+  ["09:53", "Summary link prepared with disclosure pack", "Advisor"]
+];
+
 function Hero({ onStart, onDemo }: { onStart: () => void; onDemo: () => void }) {
   return (
     <Section id="welcome" className="grid min-h-[calc(100vh-150px)] items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
@@ -35,6 +58,9 @@ function Hero({ onStart, onDemo }: { onStart: () => void; onDemo: () => void }) 
           <Button variant="quiet" onClick={onDemo}>
             Try Demo Mode <Icon name="spark" />
           </Button>
+        </div>
+        <div className="mt-5 rounded-lg border border-orange-500/20 bg-paper p-4 text-sm leading-6 text-charcoal/72 shadow-panel">
+          <strong className="text-charcoal">Compliance-ready by design.</strong> TALly provides general information only until a licensed advisor reviews the profile. Privacy and health-information consent are captured before sensitive questions are used.
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {[
@@ -89,6 +115,12 @@ function Discovery({ profile, stage, setStage }: { profile: (typeof customerProf
             Save & Resume
           </Button>
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <ComplianceStrip title="Privacy collection notice" body="We explain what is collected, why it is needed, who may receive it, and how customers can access or correct it." />
+        <ComplianceStrip title="Sensitive data consent" body="Health and lifestyle answers are clearly marked as sensitive and require explicit customer consent." />
+        <ComplianceStrip title="No advice until review" body="AI guidance supports completion and routing; product advice is reserved for the advisor workflow." />
       </div>
 
       <Card className="overflow-hidden">
@@ -238,6 +270,34 @@ function StageContent({ profile, stage }: { profile: (typeof customerProfiles)[n
           </div>
         ))}
       </div>
+      <div className="mt-6 rounded-lg border border-sage-700/20 bg-sage-50 p-4">
+        <h4 className="font-semibold text-charcoal">Consent and disclosure checklist</h4>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {[
+            "Privacy collection notice acknowledged",
+            "Sensitive health information consent captured",
+            "AI guidance limitations acknowledged",
+            "Advisor review required before personal advice"
+          ].map((item) => (
+            <div key={item} className="flex items-center gap-3 rounded-lg bg-paper p-3 text-sm font-semibold text-charcoal">
+              <Icon name="check" className="h-4 w-4 text-sage-700" />
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ComplianceStrip({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-lg border border-charcoal/10 bg-paper p-4 shadow-panel">
+      <p className="flex items-center gap-2 font-semibold text-charcoal">
+        <Icon name="shield" className="h-5 w-5 text-sage-700" />
+        {title}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-charcoal/65">{body}</p>
     </div>
   );
 }
@@ -415,6 +475,22 @@ function AdvisorDashboard({ profile }: { profile: (typeof customerProfiles)[numb
               </div>
             </Card>
           </div>
+          <Card className="p-5">
+            <h3 className="text-xl font-semibold text-charcoal">Compliance guardrails</h3>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {[
+                ["Advice boundary", "AI content remains guidance until advisor review."],
+                ["FSG / disclosure", "Financial Services Guide and privacy notice flagged for handoff."],
+                ["Replacement cover", profile.existingCover.toLowerCase().includes("cover") ? "Existing cover comparison required." : "No replacement warning currently triggered."],
+                ["Vulnerability check", profile.complexityScore >= 72 ? "Complex case: use slower, coached conversation." : "Standard customer support path."]
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg bg-sage-50 p-4">
+                  <p className="text-sm font-semibold text-sage-900">{label}</p>
+                  <p className="mt-2 text-sm leading-6 text-charcoal/68">{value}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
 
         <aside className="rounded-lg bg-sage-900 p-5 text-cream shadow-soft">
@@ -501,6 +577,84 @@ function BusinessImpact() {
   );
 }
 
+function ComplianceGovernance() {
+  return (
+    <Section id="compliance">
+      <div className="mb-8">
+        <h2 className="text-4xl font-semibold text-charcoal">Compliance built into the journey</h2>
+        <p className="mt-3 max-w-4xl text-lg text-charcoal/68">TALly makes the control environment visible: consent capture, AI explainability, advisor review, auditability, and privacy rights are part of the workflow rather than after-the-fact admin.</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <Metric label="Consent coverage" value="100%" detail="Required notices captured" />
+        <Metric label="AI decisions logged" value="100%" detail="Reasons and confidence stored" />
+        <Metric label="Advisor review" value="Human" detail="Required before advice" />
+        <Metric label="Audit readiness" value="Live" detail="Event trail for review" />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-charcoal">Control framework</h3>
+          <div className="mt-5 grid gap-3">
+            {complianceControls.map(([title, body]) => (
+              <div key={title} className="rounded-lg border border-charcoal/10 bg-cream p-4">
+                <p className="font-semibold text-charcoal">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-charcoal/66">{body}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-charcoal">Regulatory mapping</h3>
+          <div className="mt-5 overflow-hidden rounded-lg border border-charcoal/10">
+            {regulatoryMapping.map(([source, obligation, control]) => (
+              <div key={source} className="grid gap-3 border-b border-charcoal/10 bg-paper p-4 last:border-b-0 md:grid-cols-[130px_1fr_1fr]">
+                <p className="font-semibold text-sage-900">{source}</p>
+                <p className="text-sm leading-6 text-charcoal/68">{obligation}</p>
+                <p className="text-sm leading-6 text-charcoal/68">{control}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-charcoal">Audit trail preview</h3>
+          <div className="mt-5 grid gap-3">
+            {auditTrail.map(([time, event, actor]) => (
+              <div key={`${time}-${event}`} className="grid gap-3 rounded-lg bg-cream p-4 md:grid-cols-[80px_1fr_150px]">
+                <p className="font-semibold text-charcoal">{time}</p>
+                <p className="text-sm leading-6 text-charcoal/72">{event}</p>
+                <p className="text-sm font-semibold text-sage-900">{actor}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-charcoal">Customer rights and retention</h3>
+          <div className="mt-5 space-y-3">
+            {[
+              "Access and correction request workflow",
+              "Consent withdrawal record",
+              "Retention schedule for quote and advice records",
+              "Incident review path for privacy or advice-risk events"
+            ].map((item) => (
+              <div key={item} className="flex gap-3 rounded-lg bg-sage-50 p-4 text-sm font-semibold text-charcoal">
+                <Icon name="check" className="h-4 w-4 shrink-0 text-sage-700" />
+                {item}
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 rounded-lg bg-orange-500/10 p-4 text-sm leading-6 text-charcoal/70">Prototype note: this demonstrates controls and data capture patterns. Production launch still requires legal, privacy, licensing, security, and insurer policy review.</p>
+        </Card>
+      </div>
+    </Section>
+  );
+}
+
 function CompareList({ title, items, positive = false }: { title: string; items: string[]; positive?: boolean }) {
   return (
     <div className={`rounded-lg p-5 ${positive ? "bg-sage-50" : "bg-cream"}`}>
@@ -581,7 +735,8 @@ export default function App() {
       <Routing profile={profile} />
       <AdvisorDashboard profile={profile} />
       <BusinessImpact />
-      <footer className="border-t border-charcoal/10 py-8 text-center text-sm text-charcoal/55">Synthetic data only. Frontend-only prototype for hackathon demonstration.</footer>
+      <ComplianceGovernance />
+      <footer className="border-t border-charcoal/10 py-8 text-center text-sm text-charcoal/55">Synthetic data only. General information prototype only; not financial product advice.</footer>
     </main>
   );
 }

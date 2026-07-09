@@ -7,7 +7,8 @@ const nav = [
   ["Discovery", "discovery"],
   ["Routing", "routing"],
   ["Advisor", "advisor"],
-  ["Impact", "impact"]
+  ["Impact", "impact"],
+  ["Compliance", "compliance"]
 ];
 
 const goTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });

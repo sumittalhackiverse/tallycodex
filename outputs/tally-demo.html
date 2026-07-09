@@ -222,16 +222,31 @@
       .funnel { margin-top: 28px; }
       .funnel div { height: 30px; margin: 7px auto 0; border-radius: 6px; background: rgba(51, 85, 54, 0.86); }
       .presenter { margin-top: 20px; border: 1px solid rgba(51, 85, 54, 0.2); border-radius: 8px; background: var(--sage-50); box-shadow: var(--panel); padding: 14px 16px; color: var(--sage-900); font-weight: 750; }
+      .compliance-note { margin-top: 18px; border: 1px solid rgba(234, 111, 47, 0.22); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); padding: 16px; color: rgba(22, 33, 26, 0.72); font-size: 14px; line-height: 1.6; }
+      .compliance-note strong { color: var(--charcoal); }
+      .compliance-grid { display: grid; gap: 16px; margin-top: 18px; }
+      .guardrail-grid { display: grid; gap: 16px; margin-top: 18px; }
+      .compliance-metrics { display: grid; gap: 16px; }
+      .compliance-card { border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); padding: 18px; }
+      .compliance-card strong { display: block; color: var(--charcoal); }
+      .compliance-card span { display: block; margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+      .mapping-table, .audit-table { margin-top: 18px; overflow: hidden; border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); }
+      .mapping-row, .audit-row { display: grid; gap: 10px; border-bottom: 1px solid var(--border); padding: 16px; }
+      .mapping-row:last-child, .audit-row:last-child { border-bottom: 0; }
+      .mapping-row b, .audit-row b { color: var(--sage-900); }
       footer { border-top: 1px solid var(--border); padding: 32px; text-align: center; color: rgba(22, 33, 26, 0.55); font-size: 14px; }
       .rise { animation: rise 720ms ease both; }
       .fade { animation: fade 820ms ease both 100ms; }
       @keyframes rise { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
       @media (min-width: 720px) {
-        .value-grid, .steps, .proof-row { grid-template-columns: repeat(3, 1fr); }
+        .value-grid, .steps, .proof-row, .compliance-grid { grid-template-columns: repeat(3, 1fr); }
+        .guardrail-grid, .compliance-metrics { grid-template-columns: repeat(2, 1fr); }
         .stage-tabs { grid-template-columns: repeat(5, 1fr); }
         .fields, .goal-options, .route-body, .next-grid, .two-col, .followups, .metrics, .compare, .charts { grid-template-columns: repeat(2, 1fr); }
         .insights { grid-template-columns: repeat(3, 1fr); }
+        .mapping-row { grid-template-columns: 140px 1fr 1fr; }
+        .audit-row { grid-template-columns: 80px 1fr 170px; }
       }
       @media (min-width: 1024px) {
         .nav { display: flex; }
@@ -242,6 +257,7 @@
         .metrics { grid-template-columns: repeat(6, 1fr); }
         .impact-grid { grid-template-columns: 0.8fr 1.2fr; }
         .charts { grid-template-columns: repeat(3, 1fr); }
+        .compliance-metrics { grid-template-columns: repeat(4, 1fr); }
       }
       @media (max-width: 720px) {
         .shell, .topbar-inner { padding-left: 18px; padding-right: 18px; }
@@ -263,6 +279,7 @@
           <button data-scroll="routing">Routing</button>
           <button data-scroll="advisor">Advisor</button>
           <button data-scroll="impact">Impact</button>
+          <button data-scroll="compliance">Compliance</button>
         </nav>
         <div style="display:flex;gap:8px;align-items:center">
           <span class="demo-pill" id="demo-pill">Demo Mode Active</span>
@@ -296,6 +313,7 @@
               <button class="btn secondary" data-scroll="discovery">Resume Journey</button>
               <button class="btn quiet" id="hero-demo">Try Demo Mode</button>
             </div>
+            <div class="compliance-note"><strong>Compliance-ready by design.</strong> TALly provides general information only until a licensed advisor reviews the profile. Privacy and health-information consent are captured before sensitive questions are used.</div>
             <div class="steps">
               <div class="step"><div class="step-number">1</div><h3>Tell us about you</h3><p>Online discovery replaces repetitive call intake.</p></div>
               <div class="step"><div class="step-number">2</div><h3>Get guided</h3><p>Plain-English AI guidance keeps momentum high.</p></div>
@@ -321,6 +339,11 @@
               <p>Customers complete key information online, save and resume any time, and arrive at the advisor conversation with less repetition.</p>
             </div>
             <div class="save-box"><span class="autosave">Auto-saved 18 sec ago</span><button class="btn secondary">Save &amp; Resume</button></div>
+          </div>
+          <div class="compliance-grid">
+            <div class="compliance-card"><strong>Privacy collection notice</strong><span>Customers see what is collected, why it is needed, who may receive it, and how access or correction works.</span></div>
+            <div class="compliance-card"><strong>Sensitive data consent</strong><span>Health and lifestyle answers are clearly marked as sensitive and require explicit customer consent.</span></div>
+            <div class="compliance-card"><strong>No advice until review</strong><span>AI guidance supports completion and routing; product advice is reserved for the advisor workflow.</span></div>
           </div>
           <div class="panel">
             <div class="progress-wrap">
@@ -407,6 +430,15 @@
                 <div class="card"><h3>Missing information tracker</h3><div style="display:grid;gap:12px;margin-top:18px" id="missing-info"></div></div>
                 <div class="card"><h3>Next best actions</h3><div style="display:grid;gap:12px;margin-top:18px" id="actions"></div></div>
               </div>
+              <div class="card">
+                <h3>Compliance guardrails</h3>
+                <div class="guardrail-grid">
+                  <div class="compliance-card"><strong>Advice boundary</strong><span>AI guidance remains general information until advisor review.</span></div>
+                  <div class="compliance-card"><strong>FSG / disclosure</strong><span>Financial Services Guide and privacy notice flagged for handoff.</span></div>
+                  <div class="compliance-card"><strong>Replacement cover</strong><span>Existing policy changes require explicit advisor confirmation.</span></div>
+                  <div class="compliance-card"><strong>Vulnerability check</strong><span>Cost hesitation and health complexity prompts are highlighted early.</span></div>
+                </div>
+              </div>
             </div>
             <aside class="copilot">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:16px"><div><h3 style="font-size:28px">AI Copilot</h3><p style="margin-top:4px">Generated from discovery answers</p></div><span class="iconbox" style="background:rgba(247,241,230,.12);color:var(--cream)">✦</span></div>
@@ -449,8 +481,67 @@
           </div>
         </div>
       </section>
+
+      <section id="compliance">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>Compliance built into the journey</h2>
+              <p>TALly makes the control environment visible: consent capture, AI explainability, advisor review, auditability, and privacy rights are part of the workflow rather than after-the-fact admin.</p>
+            </div>
+            <span class="demo-pill">General information only until advisor review</span>
+          </div>
+          <div class="compliance-metrics">
+            <div class="metric"><small>Consent coverage</small><strong>100%</strong><span>Versioned notices</span></div>
+            <div class="metric"><small>AI decisions logged</small><strong>100%</strong><span>Explainable routing</span></div>
+            <div class="metric"><small>Advisor review</small><strong>Human</strong><span>Personal advice gate</span></div>
+            <div class="metric"><small>Audit readiness</small><strong>Live</strong><span>Traceable events</span></div>
+          </div>
+          <div class="impact-grid" style="margin-top:24px">
+            <div class="card">
+              <h3>Control framework</h3>
+              <div class="compliance-grid" style="grid-template-columns:1fr">
+                <div class="compliance-card"><strong>Advice boundary</strong><span>Digital assistant explains questions, but does not make personal product recommendations.</span></div>
+                <div class="compliance-card"><strong>Privacy and consent</strong><span>Collection notice, sensitive-information consent, access/correction rights, and withdrawal path are captured.</span></div>
+                <div class="compliance-card"><strong>Human accountability</strong><span>Advisor reviews route, risk flags, missing information, and customer objectives before advice.</span></div>
+                <div class="compliance-card"><strong>Audit trail</strong><span>Routing, AI summaries, advisor actions, and customer consent events are logged for review.</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="card">
+                <h3>Regulatory mapping</h3>
+                <div class="mapping-table">
+                  <div class="mapping-row"><b>ASIC RG 175</b><span>Financial product advice conduct and disclosure</span><span>General information warning, advisor review, advice boundary</span></div>
+                  <div class="mapping-row"><b>OAIC APP 5</b><span>Collection notice before or at collection</span><span>Layered privacy notice and sensitive-health consent</span></div>
+                  <div class="mapping-row"><b>APRA CPS 230</b><span>Operational risk controls and monitoring</span><span>Audit events, controls register, incident review readiness</span></div>
+                  <div class="mapping-row"><b>Life Code</b><span>Clear, fair, customer-centered interactions</span><span>Plain-English prompts, vulnerable-customer cues, handoff notes</span></div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:24px">
+                <h3>Audit trail preview</h3>
+                <div class="audit-table">
+                  <div class="audit-row"><b>09:42</b><span>Privacy notice displayed</span><span>Customer</span></div>
+                  <div class="audit-row"><b>09:44</b><span>Sensitive health consent accepted</span><span>Customer</span></div>
+                  <div class="audit-row"><b>09:48</b><span>AI route generated with confidence score</span><span>AI triage</span></div>
+                  <div class="audit-row"><b>09:49</b><span>Advisor review required before recommendation</span><span>Compliance guardrail</span></div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:24px">
+                <h3>Customer rights and retention</h3>
+                <div class="reason-list">
+                  <div class="reason"><span class="tick">✓</span><span>Access and correction request path for profile data</span></div>
+                  <div class="reason"><span class="tick">✓</span><span>Consent withdrawal event and advisor follow-up trigger</span></div>
+                  <div class="reason"><span class="tick">✓</span><span>Retention schedule for profiles, consent records, and audit events</span></div>
+                  <div class="reason"><span class="tick">✓</span><span>Incident review path for privacy or advice-risk events</span></div>
+                </div>
+                <p class="compliance-note">Prototype note: this demonstrates controls and data capture patterns. Production launch still requires legal, privacy, licensing, security, and insurer policy review.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
-    <footer>Synthetic data only. Frontend-only prototype for hackathon demonstration.</footer>
+    <footer>Synthetic data only. General information prototype only; not financial product advice.</footer>
 
     <script>
       const profiles = [
@@ -543,7 +634,7 @@
         } else if (stage === 3) {
           html = `<div class="title-row"><span class="iconbox">+</span><div><h3>Health and Lifestyle</h3><p>Sensitive questions are explained clearly so customers understand the purpose.</p></div></div><div class="fields">${field("Health questionnaire", p.healthConditions.join(", "), "Why we ask this: health answers help identify whether an advisor should prepare underwriting follow-up.")}${field("Lifestyle factors", p.lifestyleFactors.join(", "))}</div>`;
         } else {
-          html = `<div class="title-row"><span class="iconbox">✓</span><div><h3>Review</h3><p>The customer can review the pre-call summary before it is shared with an advisor.</p></div></div><div class="fields">${field("Customer", `${p.firstName} ${p.lastName}`)}${field("Goal", p.insuranceGoal)}${field("Existing cover", p.existingCover)}${field("Recommended path", p.recommendedPath)}</div>`;
+          html = `<div class="title-row"><span class="iconbox">✓</span><div><h3>Review</h3><p>The customer can review the pre-call summary before it is shared with an advisor.</p></div></div><div class="fields">${field("Customer", `${p.firstName} ${p.lastName}`)}${field("Goal", p.insuranceGoal)}${field("Existing cover", p.existingCover)}${field("Recommended path", p.recommendedPath)}</div><div class="compliance-card" style="margin-top:18px"><strong>Consent and disclosure checklist</strong><span>Privacy collection notice acknowledged</span><span>Sensitive health information consent captured</span><span>AI guidance limitations acknowledged</span><span>Advisor review required before personal advice</span></div>`;
         }
         $("stage-content").innerHTML = html;
         $("assistant-copy").innerHTML = [

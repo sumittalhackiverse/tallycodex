@@ -19,11 +19,19 @@ This project is now ready for a Supabase/Postgres database while keeping the cur
 - `advisor_copilot_outputs`: AI-generated advisor summaries and guidance.
 - `advisor_actions`: suggested advisor actions.
 - `business_impact_metrics` and `business_impact_benchmarks`: executive dashboard metrics and charts.
+- `compliance_disclosures`: versioned privacy, advice-boundary, and handoff disclosures.
+- `customer_consents`: timestamped consent and disclosure acknowledgements.
+- `ai_governance_records`: AI purpose, inputs, outputs, limitations, and human-review requirements.
+- `compliance_audit_events`: immutable-style event log for compliance review.
+- `advisor_compliance_reviews`: advisor readiness checks before personal advice.
+- `privacy_requests`: access, correction, consent withdrawal, export, deletion, and complaint workflow.
+- `retention_policies`: record category retention and deletion triggers.
 
 ## Views For The App
 
 - `customer_profile_view`: customer profile plus aggregated health and lifestyle arrays.
 - `advisor_dashboard_view`: customer profile plus routing and copilot outputs.
+- `compliance_customer_summary_view`: consent, AI governance, and advisor compliance status.
 
 Both views use `security_invoker = true` so Row Level Security still applies.
 
@@ -44,6 +52,18 @@ supabase db reset
 ```
 
 5. Copy the local anon key from the Supabase CLI output into `VITE_SUPABASE_ANON_KEY`.
+
+## Compliance Reset Check
+
+After `supabase db reset`, these queries should return seeded demo rows:
+
+```sql
+select count(*) from public.compliance_disclosures;
+select count(*) from public.customer_consents;
+select count(*) from public.ai_governance_records;
+select count(*) from public.compliance_audit_events;
+select * from public.compliance_customer_summary_view order by customer_code limit 3;
+```
 
 ## Security Model
 

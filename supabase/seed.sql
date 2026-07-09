@@ -395,3 +395,181 @@ on conflict (chart_key, label) do update set
   after_value = excluded.after_value,
   value_suffix = excluded.value_suffix,
   sort_order = excluded.sort_order;
+
+insert into public.compliance_disclosures (
+  disclosure_key,
+  version,
+  title,
+  regulator_reference,
+  required_context,
+  content,
+  effective_from
+) values
+('privacy_collection_notice','2026.07','Privacy collection notice','OAIC APP 5','before_personal_information_collection','Explains what information TALly collects, why it is collected, how it may be disclosed, and how a customer can access or correct it.','2026-07-09'),
+('sensitive_health_consent','2026.07','Sensitive health information consent','Privacy Act / Australian Privacy Principles','before_health_questionnaire','Confirms customer consent before TALly captures health and lifestyle information for routing and advisor preparation.','2026-07-09'),
+('general_information_warning','2026.07','General information and advice boundary','ASIC RG 175','before_ai_guidance_or_routing','Explains that digital guidance is general information only and personal advice requires licensed advisor review.','2026-07-09'),
+('advisor_handoff_disclosure','2026.07','Advisor handoff disclosure pack','ASIC disclosure obligations','before_advisor_conversation','Confirms the customer profile, consent history, AI-generated summary, and outstanding questions are prepared for advisor review.','2026-07-09')
+on conflict (disclosure_key, version) do update set
+  title = excluded.title,
+  regulator_reference = excluded.regulator_reference,
+  required_context = excluded.required_context,
+  content = excluded.content,
+  effective_from = excluded.effective_from,
+  updated_at = now();
+
+insert into public.retention_policies (
+  policy_key,
+  record_category,
+  retention_period,
+  deletion_trigger,
+  legal_basis
+) values
+('quote_journey_records','Digital discovery and quote journey records','7 years after last customer interaction','Retention period expiry or approved deletion request','Advice recordkeeping and complaint-handling readiness'),
+('consent_records','Consent and disclosure acknowledgement records','7 years after consent is withdrawn or journey closes','Retention period expiry','Privacy and consent evidence'),
+('ai_governance_records','AI routing and copilot governance records','7 years after advisor review','Retention period expiry or model-risk archive process','Explainability and auditability'),
+('audit_events','Compliance audit trail events','7 years from event creation','Retention period expiry','Operational risk and compliance monitoring')
+on conflict (policy_key) do update set
+  record_category = excluded.record_category,
+  retention_period = excluded.retention_period,
+  deletion_trigger = excluded.deletion_trigger,
+  legal_basis = excluded.legal_basis,
+  updated_at = now();
+
+delete from public.customer_consents
+where customer_id in (
+  select id from public.customer_profiles where is_demo = true
+);
+
+insert into public.customer_consents (
+  customer_id,
+  disclosure_key,
+  disclosure_version,
+  consent_status,
+  capture_channel,
+  evidence
+)
+select
+  p.id,
+  d.disclosure_key,
+  d.version,
+  'accepted',
+  'digital_discovery',
+  jsonb_build_object(
+    'prototype', true,
+    'customerCode', p.customer_code,
+    'persona', p.demo_persona,
+    'control', d.required_context
+  )
+from public.customer_profiles p
+cross join public.compliance_disclosures d
+where p.is_demo = true
+  and d.version = '2026.07'
+on conflict (customer_id, disclosure_key, disclosure_version) do update set
+  consent_status = excluded.consent_status,
+  capture_channel = excluded.capture_channel,
+  evidence = excluded.evidence,
+  updated_at = now();
+
+delete from public.ai_governance_records
+where customer_id in (
+  select id from public.customer_profiles where is_demo = true
+);
+
+insert into public.ai_governance_records (
+  customer_id,
+  model_purpose,
+  data_inputs,
+  decision_output,
+  explanation,
+  limitations,
+  confidence_score,
+  human_review_required
+)
+select
+  p.id,
+  'Journey routing and advisor copilot summary',
+  array['age','occupation','dependants','income','existing_cover','health_conditions','lifestyle_factors','insurance_goal']::text[],
+  p.recommended_path,
+  case
+    when p.complexity_score < 40 then 'Low complexity profile can continue digitally with standard checks.'
+    when p.complexity_score < 72 then 'Moderate complexity profile benefits from advisor review because cover gaps or dependants are present.'
+    else 'High complexity profile requires advisor consultation because health, lifestyle, or coverage complexity may affect suitability.'
+  end,
+  'AI outputs do not provide personal financial product advice. A licensed advisor must review customer circumstances before recommendations.',
+  least(96, case when p.complexity_score < 40 then 92 when p.complexity_score < 72 then 87 else 83 end + round((100 - p.complexity_score) / 20.0)::int),
+  true
+from public.customer_profiles p
+where p.is_demo = true;
+
+insert into public.advisor_compliance_reviews (
+  customer_id,
+  advice_boundary,
+  fsg_required,
+  fsg_provided,
+  privacy_notice_provided,
+  sensitive_data_consent_verified,
+  replacement_cover_review_required,
+  vulnerable_customer_flag,
+  soa_required,
+  status,
+  review_notes
+)
+select
+  p.id,
+  'general_information_until_advisor_review',
+  true,
+  false,
+  true,
+  true,
+  p.existing_cover not ilike 'No existing cover',
+  p.complexity_score >= 72,
+  p.recommended_path <> 'Continue digitally',
+  case when p.complexity_score < 40 then 'ready_for_review' else 'pending' end,
+  case
+    when p.complexity_score >= 72 then 'Complex profile: advisor must verify health disclosures, replacement-cover implications, and customer understanding.'
+    when p.complexity_score >= 40 then 'Moderate profile: advisor should confirm cover gaps and affordability before recommendation.'
+    else 'Simple profile: confirm assumptions and keep guidance within licensed advice process.'
+  end
+from public.customer_profiles p
+where p.is_demo = true
+on conflict (customer_id) do update set
+  advice_boundary = excluded.advice_boundary,
+  fsg_required = excluded.fsg_required,
+  fsg_provided = excluded.fsg_provided,
+  privacy_notice_provided = excluded.privacy_notice_provided,
+  sensitive_data_consent_verified = excluded.sensitive_data_consent_verified,
+  replacement_cover_review_required = excluded.replacement_cover_review_required,
+  vulnerable_customer_flag = excluded.vulnerable_customer_flag,
+  soa_required = excluded.soa_required,
+  status = excluded.status,
+  review_notes = excluded.review_notes,
+  updated_at = now();
+
+delete from public.compliance_audit_events
+where customer_id in (
+  select id from public.customer_profiles where is_demo = true
+);
+
+insert into public.compliance_audit_events (
+  customer_id,
+  actor_type,
+  event_type,
+  event_summary,
+  risk_level,
+  metadata
+)
+select p.id, 'customer', 'privacy_notice_displayed', 'APP 5 collection notice displayed before discovery.', 'low', jsonb_build_object('customerCode', p.customer_code)
+from public.customer_profiles p
+where p.is_demo = true
+union all
+select p.id, 'customer', 'sensitive_health_consent_accepted', 'Sensitive health information consent accepted.', 'medium', jsonb_build_object('customerCode', p.customer_code)
+from public.customer_profiles p
+where p.is_demo = true
+union all
+select p.id, 'ai_triage', 'journey_route_generated', 'Explainable route generated with confidence and reasons.', case when p.complexity_score >= 72 then 'high' when p.complexity_score >= 40 then 'medium' else 'low' end, jsonb_build_object('recommendedPath', p.recommended_path, 'complexityScore', p.complexity_score)
+from public.customer_profiles p
+where p.is_demo = true
+union all
+select p.id, 'compliance', 'advisor_review_gate_applied', 'Advisor review gate applied before any personal advice recommendation.', case when p.complexity_score >= 72 then 'high' else 'medium' end, jsonb_build_object('soaRequired', p.recommended_path <> 'Continue digitally')
+from public.customer_profiles p
+where p.is_demo = true;

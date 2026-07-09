@@ -24,6 +24,8 @@ The project now includes a Supabase/Postgres database foundation:
 
 The schema includes customer profiles, health and lifestyle disclosures, save/resume journey sessions, explainable AI routing, advisor copilot outputs, suggested actions, and business impact metrics.
 
+The compliance layer is documented in `COMPLIANCE.md` and includes disclosure, consent, AI governance, audit, privacy request, retention, and advisor-review tables.
+
 ## Local Database Commands
 
 ```bash
@@ -41,4 +43,4 @@ npm run dev
 npm run build
 ```
 
-Node/npm were not available in the Codex workspace where this was created, so browser QA was run against the self-contained preview file.
+Node/npm, Supabase CLI, and psql were not available in the Codex workspace where this was created. The self-contained preview can be opened locally from `outputs/tally-demo.html`.
