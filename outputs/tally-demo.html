@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TALly - AI Assisted Insurance Journey</title>
+    <style>
+      :root {
+        --cream: #f7f1e6;
+        --paper: #fffdf8;
+        --charcoal: #16211a;
+        --muted: rgba(22, 33, 26, 0.66);
+        --sage-50: #eef4ea;
+        --sage-100: #dbe7d4;
+        --sage-300: #a9be9b;
+        --sage-700: #335536;
+        --sage-900: #15361f;
+        --orange: #ea6f2f;
+        --amber: #d9932e;
+        --red: #c94337;
+        --border: rgba(22, 33, 26, 0.11);
+        --shadow: 0 18px 55px rgba(22, 33, 26, 0.1);
+        --panel: 0 10px 34px rgba(22, 33, 26, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--charcoal);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      button, select { font: inherit; }
+      button { cursor: pointer; }
+      .shell { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid var(--border);
+        background: rgba(247, 241, 230, 0.9);
+        backdrop-filter: blur(18px);
+      }
+      .topbar-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 32px; }
+      .brand { display: flex; align-items: center; gap: 12px; border: 0; background: transparent; color: var(--charcoal); text-align: left; }
+      .brand-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 8px; background: var(--sage-900); color: var(--cream); font-weight: 800; }
+      .brand-title { display: block; font-weight: 800; }
+      .brand-sub { display: block; color: rgba(22, 33, 26, 0.6); font-size: 12px; }
+      .nav { display: none; align-items: center; gap: 2px; }
+      .nav button { border: 0; border-radius: 8px; background: transparent; padding: 10px 12px; color: rgba(22, 33, 26, 0.72); font-weight: 650; }
+      .nav button:hover { background: var(--sage-50); color: var(--charcoal); }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 750;
+        transition: 160ms ease;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn:active { transform: scale(0.98); }
+      .primary { background: var(--orange); color: white; box-shadow: var(--shadow); }
+      .secondary { background: var(--paper); border-color: var(--border); color: var(--charcoal); }
+      .quiet { background: var(--sage-50); color: var(--sage-900); }
+      .demo-pill { border-radius: 8px; background: var(--sage-900); color: var(--cream); padding: 10px 13px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+      .persona-row {
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--panel);
+        padding: 8px;
+      }
+      .persona-row span { padding: 0 8px; color: rgba(22, 33, 26, 0.55); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+      .persona-row button { border: 0; border-radius: 8px; background: var(--sage-50); color: var(--charcoal); padding: 10px 12px; font-size: 14px; font-weight: 750; }
+      .persona-row button.active { background: var(--sage-900); color: var(--cream); }
+      .persona-row select { margin-left: auto; min-width: 260px; border: 1px solid var(--border); border-radius: 8px; background: white; padding: 10px 12px; color: var(--charcoal); font-weight: 700; }
+      section { padding: 76px 0; }
+      .hero { display: grid; min-height: calc(100vh - 150px); align-items: center; gap: 44px; }
+      h1 { max-width: 760px; margin: 0; font-size: clamp(44px, 5.6vw, 72px); line-height: 1.03; letter-spacing: 0; }
+      h2 { margin: 0; font-size: clamp(34px, 4vw, 50px); line-height: 1.08; letter-spacing: 0; }
+      h3 { margin: 0; font-size: 22px; }
+      p { margin: 0; }
+      .lead { margin-top: 24px; max-width: 620px; color: rgba(22, 33, 26, 0.72); font-size: 21px; line-height: 1.55; }
+      .value-grid { display: grid; gap: 12px; margin-top: 32px; }
+      .value-item, .small-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--panel);
+      }
+      .value-item { display: flex; align-items: center; gap: 12px; padding: 14px; font-weight: 700; color: rgba(22, 33, 26, 0.8); }
+      .tick { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: var(--sage-50); color: var(--sage-700); font-weight: 900; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+      .steps { display: grid; gap: 14px; margin-top: 40px; }
+      .step { border: 1px solid var(--border); border-radius: 8px; background: var(--sage-50); padding: 18px; }
+      .step-number { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 8px; background: var(--sage-900); color: var(--cream); font-weight: 850; }
+      .step h3 { margin-top: 16px; font-size: 17px; }
+      .step p { margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+      .hero-media { border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--shadow); padding: 12px; }
+      .hero-media img { display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 8px; object-fit: cover; }
+      .proof-row { display: grid; gap: 12px; margin-top: 12px; }
+      .proof { border-radius: 8px; background: var(--cream); padding: 16px; }
+      .proof strong { display: block; margin-top: 10px; }
+      .proof span { display: block; margin-top: 4px; color: rgba(22, 33, 26, 0.62); font-size: 14px; }
+      .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+      .section-head p { max-width: 840px; margin-top: 12px; color: rgba(22, 33, 26, 0.68); font-size: 18px; line-height: 1.6; }
+      .panel { border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); overflow: hidden; }
+      .save-box { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); padding: 8px; }
+      .autosave { border-radius: 8px; background: var(--sage-50); color: var(--sage-900); padding: 10px 12px; font-size: 14px; font-weight: 750; }
+      .progress-wrap { border-bottom: 1px solid var(--border); background: var(--cream); padding: 20px; }
+      .track { height: 8px; border-radius: 999px; background: var(--sage-100); overflow: hidden; }
+      .bar { height: 100%; width: 20%; border-radius: inherit; background: var(--sage-700); transition: width 280ms ease; }
+      .stage-tabs { display: grid; gap: 8px; margin-top: 16px; }
+      .stage-tabs button { border: 0; border-radius: 8px; background: var(--paper); color: rgba(22, 33, 26, 0.6); padding: 12px; text-align: left; font-size: 14px; font-weight: 800; }
+      .stage-tabs button.done { background: var(--sage-50); color: var(--sage-900); }
+      .stage-tabs button.active { background: var(--sage-900); color: var(--cream); }
+      .discovery-body { display: grid; gap: 24px; padding: 20px; }
+      .form-card { min-height: 460px; border: 1px solid var(--border); border-radius: 8px; background: white; padding: 22px; }
+      .title-row { display: flex; gap: 16px; }
+      .iconbox { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: var(--sage-50); color: var(--sage-700); font-weight: 900; }
+      .title-row p { margin-top: 8px; max-width: 760px; color: rgba(22, 33, 26, 0.65); line-height: 1.6; }
+      .fields { display: grid; gap: 16px; margin-top: 24px; }
+      .field span:first-child { display: block; color: rgba(22, 33, 26, 0.72); font-size: 14px; font-weight: 750; }
+      .field .value { display: block; margin-top: 8px; border: 1px solid rgba(22, 33, 26, 0.12); border-radius: 8px; background: var(--cream); padding: 13px 16px; color: var(--charcoal); }
+      .field em { display: block; margin-top: 8px; color: rgba(22, 33, 26, 0.58); font-size: 14px; font-style: normal; line-height: 1.55; }
+      .goal-options { display: grid; gap: 12px; margin-top: 16px; }
+      .goal-options div { border: 1px solid var(--border); border-radius: 8px; background: white; padding: 16px; font-weight: 750; }
+      .goal-options div.active { border-color: var(--sage-700); background: var(--sage-50); }
+      .form-actions { display: flex; justify-content: space-between; margin-top: 32px; }
+      .assistant {
+        border-radius: 8px;
+        background: var(--sage-900);
+        color: var(--cream);
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+      .assistant-head { display: flex; align-items: center; gap: 12px; }
+      .assistant h3 { font-size: 18px; }
+      .assistant p { color: rgba(247, 241, 230, 0.72); }
+      .bubble { margin-top: 14px; border-radius: 8px; background: rgba(247, 241, 230, 0.1); padding: 16px; }
+      .bubble strong { display: block; color: var(--cream); font-size: 14px; }
+      .bubble span { display: block; margin-top: 8px; color: rgba(247, 241, 230, 0.75); font-size: 14px; line-height: 1.6; }
+      .routing-grid, .impact-grid { display: grid; gap: 24px; }
+      .route-card { overflow: hidden; }
+      .route-top { padding: 26px; color: white; }
+      .route-top .code { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9; }
+      .route-top h3 { margin-top: 12px; font-size: 42px; }
+      .route-top p { margin-top: 10px; font-size: 18px; opacity: 0.92; }
+      .route-body { display: grid; gap: 22px; padding: 24px; }
+      .gauge {
+        display: grid;
+        width: 116px;
+        height: 116px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        background: conic-gradient(var(--sage-700) var(--score), #ece3d4 0);
+        position: relative;
+      }
+      .gauge::after { content: ""; position: absolute; inset: 14px; border-radius: inherit; background: var(--paper); }
+      .gauge strong { position: relative; z-index: 1; }
+      .reason-list { display: grid; gap: 12px; margin-top: 18px; }
+      .reason { display: flex; gap: 12px; border-radius: 8px; background: var(--cream); padding: 14px; color: rgba(22, 33, 26, 0.76); line-height: 1.5; }
+      .next-grid { display: grid; gap: 12px; margin-top: 18px; }
+      .next { border: 1px solid var(--border); border-radius: 8px; background: var(--sage-50); padding: 16px; }
+      .next b { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--paper); color: var(--sage-700); }
+      .next span { display: block; margin-top: 14px; font-weight: 800; }
+      .advisor-shell { display: grid; gap: 24px; }
+      .customer-card, .center-col, .copilot, .summary-card, .card { border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); }
+      .customer-card, .card, .summary-card { padding: 22px; }
+      .avatar { display: grid; width: 58px; height: 58px; place-items: center; border-radius: 8px; background: var(--sage-900); color: var(--cream); font-size: 20px; font-weight: 900; }
+      .facts { display: grid; gap: 12px; margin-top: 22px; }
+      .fact { border-radius: 8px; background: var(--cream); padding: 12px; }
+      .fact small { display: block; color: rgba(22, 33, 26, 0.52); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+      .fact strong { display: block; margin-top: 4px; }
+      .score-line { height: 12px; border-radius: 999px; background: var(--sage-100); overflow: hidden; }
+      .score-line div { height: 100%; background: var(--orange); border-radius: inherit; }
+      .insights { display: grid; gap: 16px; margin-top: 18px; }
+      .insight { border: 1px solid var(--border); border-radius: 8px; background: var(--cream); padding: 16px; color: rgba(22, 33, 26, 0.72); line-height: 1.55; }
+      .two-col { display: grid; gap: 24px; }
+      .check-row { display: flex; gap: 12px; align-items: flex-start; border-radius: 8px; background: var(--cream); padding: 12px; color: rgba(22, 33, 26, 0.72); line-height: 1.55; }
+      .check-dot { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border-radius: 999px; background: var(--sage-700); color: white; font-size: 12px; font-weight: 900; }
+      .action-btn { display: flex; width: 100%; align-items: center; justify-content: space-between; border: 1px solid var(--border); border-radius: 8px; background: var(--cream); padding: 13px; text-align: left; font-weight: 800; color: var(--charcoal); }
+      .action-btn:hover { border-color: var(--sage-700); background: var(--sage-50); }
+      .copilot { background: var(--sage-900); color: var(--cream); padding: 22px; box-shadow: var(--shadow); }
+      .copilot p { color: rgba(247, 241, 230, 0.68); }
+      .copilot-block { margin-top: 18px; border: 1px solid rgba(247, 241, 230, 0.12); border-radius: 8px; background: rgba(247, 241, 230, 0.08); padding: 16px; }
+      .copilot-block strong { display: block; font-size: 14px; }
+      .copilot-block ul { margin: 12px 0 0; padding: 0; list-style: none; }
+      .copilot-block li { display: flex; gap: 10px; margin-top: 10px; color: rgba(247, 241, 230, 0.76); font-size: 14px; line-height: 1.55; }
+      .summary-card { margin-top: 24px; }
+      .summary-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+      .followups { display: grid; gap: 12px; margin-top: 18px; }
+      .followups div { border-radius: 8px; background: var(--sage-50); padding: 16px; font-weight: 800; }
+      .metrics { display: grid; gap: 16px; }
+      .metric { border: 1px solid var(--border); border-radius: 8px; background: var(--paper); box-shadow: var(--panel); padding: 18px; }
+      .metric small { color: rgba(22, 33, 26, 0.55); font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+      .metric strong { display: block; margin-top: 12px; font-size: 34px; }
+      .metric span { display: block; margin-top: 8px; color: var(--sage-700); font-size: 14px; }
+      .compare { display: grid; gap: 16px; }
+      .compare-box { border-radius: 8px; background: var(--cream); padding: 20px; }
+      .compare-box.after { background: var(--sage-50); }
+      .compare-box ul { margin: 16px 0 0; padding: 0; list-style: none; }
+      .compare-box li { display: flex; gap: 10px; margin-top: 10px; color: rgba(22, 33, 26, 0.72); line-height: 1.5; }
+      .charts { display: grid; gap: 24px; }
+      .bars { display: flex; height: 160px; align-items: end; gap: 18px; margin-top: 22px; }
+      .bar-col { flex: 1; text-align: center; }
+      .bar-box { display: flex; height: 130px; align-items: end; border-radius: 8px; background: var(--cream); padding: 8px; }
+      .bar-fill { width: 100%; border-radius: 6px; background: var(--sage-300); }
+      .bar-fill.after { background: var(--orange); }
+      .bar-col small { display: block; margin-top: 8px; color: rgba(22, 33, 26, 0.62); font-weight: 800; }
+      .funnel { margin-top: 28px; }
+      .funnel div { height: 30px; margin: 7px auto 0; border-radius: 6px; background: rgba(51, 85, 54, 0.86); }
+      .presenter { margin-top: 20px; border: 1px solid rgba(51, 85, 54, 0.2); border-radius: 8px; background: var(--sage-50); box-shadow: var(--panel); padding: 14px 16px; color: var(--sage-900); font-weight: 750; }
+      footer { border-top: 1px solid var(--border); padding: 32px; text-align: center; color: rgba(22, 33, 26, 0.55); font-size: 14px; }
+      .rise { animation: rise 720ms ease both; }
+      .fade { animation: fade 820ms ease both 100ms; }
+      @keyframes rise { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+      @media (min-width: 720px) {
+        .value-grid, .steps, .proof-row { grid-template-columns: repeat(3, 1fr); }
+        .stage-tabs { grid-template-columns: repeat(5, 1fr); }
+        .fields, .goal-options, .route-body, .next-grid, .two-col, .followups, .metrics, .compare, .charts { grid-template-columns: repeat(2, 1fr); }
+        .insights { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (min-width: 1024px) {
+        .nav { display: flex; }
+        .hero { grid-template-columns: 0.9fr 1.1fr; }
+        .discovery-body { grid-template-columns: 1fr 360px; }
+        .routing-grid { grid-template-columns: 0.95fr 1.05fr; }
+        .advisor-shell { grid-template-columns: 320px 1fr 390px; }
+        .metrics { grid-template-columns: repeat(6, 1fr); }
+        .impact-grid { grid-template-columns: 0.8fr 1.2fr; }
+        .charts { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (max-width: 720px) {
+        .shell, .topbar-inner { padding-left: 18px; padding-right: 18px; }
+        .persona-row select { width: 100%; margin-left: 0; }
+        section { padding: 54px 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner shell">
+        <button class="brand" data-scroll="welcome">
+          <span class="brand-mark">T</span>
+          <span><span class="brand-title">TALly</span><span class="brand-sub">AI Assisted Insurance Journey</span></span>
+        </button>
+        <nav class="nav">
+          <button data-scroll="welcome">Welcome</button>
+          <button data-scroll="discovery">Discovery</button>
+          <button data-scroll="routing">Routing</button>
+          <button data-scroll="advisor">Advisor</button>
+          <button data-scroll="impact">Impact</button>
+        </nav>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="demo-pill" id="demo-pill">Demo Mode Active</span>
+          <button class="btn primary" id="demo-button">Try Demo Mode</button>
+        </div>
+        <div class="persona-row">
+          <span>Persona</span>
+          <button data-profile="TAL-1001">Young Professional</button>
+          <button data-profile="TAL-1002">Family with Children</button>
+          <button data-profile="TAL-1003">Complex Health Profile</button>
+          <select id="profile-select" aria-label="Switch customer profile"></select>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="shell"><div class="presenter" id="presenter"></div></div>
+
+      <section id="welcome">
+        <div class="shell hero">
+          <div class="rise">
+            <h1>Get protected faster with less paperwork</h1>
+            <p class="lead">Start your insurance journey in minutes, not hours</p>
+            <div class="value-grid">
+              <div class="value-item"><span class="tick">✓</span>Save time before the call</div>
+              <div class="value-item"><span class="tick">✓</span>No repeating information</div>
+              <div class="value-item"><span class="tick">✓</span>Smarter advisor conversations</div>
+            </div>
+            <div class="cta-row">
+              <button class="btn primary" data-scroll="discovery">Start Journey</button>
+              <button class="btn secondary" data-scroll="discovery">Resume Journey</button>
+              <button class="btn quiet" id="hero-demo">Try Demo Mode</button>
+            </div>
+            <div class="steps">
+              <div class="step"><div class="step-number">1</div><h3>Tell us about you</h3><p>Online discovery replaces repetitive call intake.</p></div>
+              <div class="step"><div class="step-number">2</div><h3>Get guided</h3><p>Plain-English AI guidance keeps momentum high.</p></div>
+              <div class="step"><div class="step-number">3</div><h3>Speak smarter with your advisor</h3><p>Advisors start with context, not admin.</p></div>
+            </div>
+          </div>
+          <div class="hero-media fade">
+            <img src="../public/images/tally-hero-ai-journey.png" alt="AI assisted insurance journey with advisor support" />
+            <div class="proof-row">
+              <div class="proof"><span class="tick">◷</span><strong>10-15 min</strong><span>Customer-guided discovery</span></div>
+              <div class="proof"><span class="tick">✦</span><strong>AI guided</strong><span>Support without replacing humans</span></div>
+              <div class="proof"><span class="tick">▣</span><strong>Advisor ready</strong><span>Summary before the call</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="discovery">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>Digital discovery that feels guided, not heavy</h2>
+              <p>Customers complete key information online, save and resume any time, and arrive at the advisor conversation with less repetition.</p>
+            </div>
+            <div class="save-box"><span class="autosave">Auto-saved 18 sec ago</span><button class="btn secondary">Save &amp; Resume</button></div>
+          </div>
+          <div class="panel">
+            <div class="progress-wrap">
+              <div class="track"><div class="bar" id="stage-bar"></div></div>
+              <div class="stage-tabs" id="stage-tabs"></div>
+            </div>
+            <div class="discovery-body">
+              <div class="form-card">
+                <div id="stage-content"></div>
+                <div class="form-actions">
+                  <button class="btn secondary" id="back-stage">Back</button>
+                  <button class="btn primary" id="next-stage">Continue</button>
+                </div>
+              </div>
+              <aside class="assistant">
+                <div class="assistant-head"><span class="iconbox">✦</span><div><h3>AI Assistant</h3><p>Plain-English guidance</p></div></div>
+                <div id="assistant-copy"></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="routing">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>Journey intelligence makes routing explainable</h2>
+              <p>AI triage is transparent: customers see what happens next, while advisors receive a clear reason for intervention.</p>
+            </div>
+          </div>
+          <div class="routing-grid">
+            <div class="panel route-card">
+              <div class="route-top" id="route-top">
+                <div class="code" id="route-code"></div>
+                <h3 id="route-title"></h3>
+                <p id="route-path"></p>
+              </div>
+              <div class="route-body">
+                <div>
+                  <strong style="color:rgba(22,33,26,.55);font-size:14px">Confidence score</strong>
+                  <div style="display:flex;gap:18px;align-items:center;margin-top:16px">
+                    <div class="gauge" id="confidence-gauge"><strong id="confidence"></strong></div>
+                    <p style="color:var(--muted);line-height:1.55">Model confidence based on completion, health signals, cover complexity, and missing information.</p>
+                  </div>
+                </div>
+                <div>
+                  <strong style="color:rgba(22,33,26,.55);font-size:14px">Recommended path</strong>
+                  <p style="margin-top:16px;font-size:28px;font-weight:850" id="recommended-path"></p>
+                  <p style="margin-top:8px;color:var(--muted);line-height:1.55">The advisor is introduced only when the conversation can create material value.</p>
+                </div>
+              </div>
+            </div>
+            <div style="display:grid;gap:24px">
+              <div class="card"><h3>Why this decision was made</h3><div class="reason-list" id="route-reasons"></div></div>
+              <div class="card"><h3>What happens next</h3><div class="next-grid" id="route-next"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="advisor">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>Advisor Copilot workspace</h2>
+              <p>The standout value: advisors start with a pre-qualified profile, AI summary, next-best questions, and less admin.</p>
+            </div>
+            <span class="demo-pill">Advisor time shifted to value-added conversations</span>
+          </div>
+          <div class="advisor-shell">
+            <aside class="customer-card">
+              <div style="display:flex;gap:16px;align-items:center">
+                <div class="avatar" id="avatar"></div>
+                <div><h3 id="customer-name"></h3><p style="color:rgba(22,33,26,.6)" id="customer-id"></p></div>
+              </div>
+              <div class="facts" id="facts"></div>
+              <div class="fact" style="background:var(--sage-50);margin-top:20px"><small>Intent summary</small><p style="margin-top:8px;color:var(--muted);line-height:1.55" id="intent-summary"></p></div>
+              <div style="margin-top:20px"><small style="font-weight:800;color:rgba(22,33,26,.55)">Complexity score</small><div class="score-line" style="margin-top:8px"><div id="score-line"></div></div><p style="margin-top:8px;font-weight:850" id="score-label"></p></div>
+            </aside>
+            <div style="display:grid;gap:24px">
+              <div class="card"><h3>Risk insights</h3><div class="insights" id="risk-insights"></div></div>
+              <div class="two-col">
+                <div class="card"><h3>Missing information tracker</h3><div style="display:grid;gap:12px;margin-top:18px" id="missing-info"></div></div>
+                <div class="card"><h3>Next best actions</h3><div style="display:grid;gap:12px;margin-top:18px" id="actions"></div></div>
+              </div>
+            </div>
+            <aside class="copilot">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px"><div><h3 style="font-size:28px">AI Copilot</h3><p style="margin-top:4px">Generated from discovery answers</p></div><span class="iconbox" style="background:rgba(247,241,230,.12);color:var(--cream)">✦</span></div>
+              <div id="copilot"></div>
+            </aside>
+          </div>
+          <div class="summary-card">
+            <div class="summary-top"><div><h3>Conversation summary generator</h3><p style="margin-top:8px;max-width:900px;color:var(--muted);line-height:1.55" id="call-notes"></p></div><button class="btn secondary">Send summary link</button></div>
+            <div class="followups" id="followups"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="impact">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>Same advisors, higher sales, lower effort</h2>
+              <p>TALly enables scalable growth by shifting routine effort online, improving advisor efficiency, and preserving expert human guidance where it matters most.</p>
+            </div>
+          </div>
+          <div class="metrics">
+            <div class="metric"><small>Call time reduced</small><strong>-40%</strong><span>Less intake admin</span></div>
+            <div class="metric"><small>Conversion uplift</small><strong>+18%</strong><span>Better-qualified calls</span></div>
+            <div class="metric"><small>Customer effort</small><strong>-32%</strong><span>No repetition</span></div>
+            <div class="metric"><small>Advisor productivity</small><strong>+26%</strong><span>More valuable calls</span></div>
+            <div class="metric"><small>Qualification speed</small><strong>2.4x</strong><span>Faster triage</span></div>
+            <div class="metric"><small>Scalability</small><strong>+22%</strong><span>No added ops cost</span></div>
+          </div>
+          <div class="impact-grid" style="margin-top:24px">
+            <div class="card compare">
+              <div class="compare-box"><h3>Before</h3><ul><li>✓ 60-90 minute calls</li><li>✓ Repetitive questioning</li><li>✓ Fragmented journey</li><li>✓ Higher drop-off</li><li>✓ Higher manual effort</li></ul></div>
+              <div class="compare-box after"><h3>After</h3><ul><li>✓ Pre-filled applications</li><li>✓ Better triage</li><li>✓ Focused advisor conversations</li><li>✓ Lower friction</li><li>✓ Scalable growth without extra operational burden</li></ul></div>
+            </div>
+            <div class="charts">
+              <div class="card"><h3>Conversion uplift</h3><div class="bars"><div class="bar-col"><div class="bar-box"><div class="bar-fill" style="height:54%"></div></div><small>Before</small></div><div class="bar-col"><div class="bar-box"><div class="bar-fill after" style="height:72%"></div></div><small>After</small></div></div></div>
+              <div class="card"><h3>Time savings</h3><div class="bars"><div class="bar-col"><div class="bar-box"><div class="bar-fill after" style="height:88%"></div></div><small>Traditional</small></div><div class="bar-col"><div class="bar-box"><div class="bar-fill" style="height:52%"></div></div><small>TALly</small></div></div></div>
+              <div class="card"><h3>Funnel improvement</h3><div class="funnel"><div style="width:100%"></div><div style="width:82%;opacity:.88"></div><div style="width:66%;opacity:.76"></div><div style="width:51%;opacity:.64"></div></div><p style="margin-top:22px;color:var(--muted);line-height:1.55">More customers reach qualified advisor conversations because routine discovery is completed earlier.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>Synthetic data only. Frontend-only prototype for hackathon demonstration.</footer>
+
+    <script>
+      const profiles = [
+        { id:"TAL-1001", firstName:"Mia", lastName:"Chen", age:29, occupation:"Software Engineer", maritalStatus:"Single", dependants:0, annualIncome:118000, existingCover:"Employer default cover", healthConditions:["None disclosed"], lifestyleFactors:["Runs weekly","Non-smoker"], insuranceGoal:"Income protection while building savings", complexityScore:24, recommendedPath:"Continue digitally", demoPersona:"Young Professional", presenterDescription:"Simple journey: low complexity, digitally confident, fast self-service path." },
+        { id:"TAL-1002", firstName:"Daniel", lastName:"Hughes", age:36, occupation:"Project Manager", maritalStatus:"Married", dependants:2, annualIncome:142000, existingCover:"Basic life and TPD through super", healthConditions:["Mild asthma"], lifestyleFactors:["Occasional skiing","Non-smoker"], insuranceGoal:"Family protection and mortgage security", complexityScore:58, recommendedPath:"Advisor review recommended", demoPersona:"Family with Children", presenterDescription:"Moderate journey: strong advisor opportunity with dependants, mortgage, and cover gaps." },
+        { id:"TAL-1003", firstName:"Priya", lastName:"Nair", age:48, occupation:"Small Business Owner", maritalStatus:"Married", dependants:1, annualIncome:196000, existingCover:"Legacy retail policy, unsure of exclusions", healthConditions:["Type 2 diabetes","Recent knee surgery"], lifestyleFactors:["Frequent travel","Former smoker"], insuranceGoal:"Business continuity and family protection", complexityScore:84, recommendedPath:"Advisor consultation required", demoPersona:"Complex Health Profile", presenterDescription:"Complex journey: AI triage identifies underwriting and advice needs before the call." },
+        { id:"TAL-1004", firstName:"Oliver", lastName:"Reed", age:41, occupation:"Architect", maritalStatus:"Married", dependants:1, annualIncome:155000, existingCover:"Life cover through super", healthConditions:["None disclosed"], lifestyleFactors:["Cycling commuter"], insuranceGoal:"Protect family income", complexityScore:45, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1005", firstName:"Amara", lastName:"King", age:33, occupation:"Dentist", maritalStatus:"Partnered", dependants:0, annualIncome:188000, existingCover:"Income protection only", healthConditions:["None disclosed"], lifestyleFactors:["Pilates","Non-smoker"], insuranceGoal:"Income and trauma cover", complexityScore:34, recommendedPath:"Continue digitally" },
+        { id:"TAL-1006", firstName:"Noah", lastName:"Patel", age:52, occupation:"Electrician", maritalStatus:"Married", dependants:3, annualIncome:121000, existingCover:"Minimal super cover", healthConditions:["High blood pressure"], lifestyleFactors:["Manual work","Weekend motorcycling"], insuranceGoal:"Family protection and debt coverage", complexityScore:72, recommendedPath:"Advisor consultation required" },
+        { id:"TAL-1007", firstName:"Sofia", lastName:"Martinez", age:27, occupation:"Marketing Specialist", maritalStatus:"Single", dependants:0, annualIncome:92000, existingCover:"No existing cover", healthConditions:["None disclosed"], lifestyleFactors:["Gym 3x weekly"], insuranceGoal:"Affordable starter cover", complexityScore:18, recommendedPath:"Continue digitally" },
+        { id:"TAL-1008", firstName:"Ethan", lastName:"Brooks", age:44, occupation:"Sales Director", maritalStatus:"Divorced", dependants:2, annualIncome:230000, existingCover:"Multiple policies, unclear ownership", healthConditions:["Sleep apnea"], lifestyleFactors:["Frequent travel"], insuranceGoal:"Review cover and beneficiary structure", complexityScore:68, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1009", firstName:"Grace", lastName:"Wilson", age:38, occupation:"Teacher", maritalStatus:"Married", dependants:2, annualIncome:96000, existingCover:"Basic super cover", healthConditions:["Mild anxiety, managed"], lifestyleFactors:["Non-smoker"], insuranceGoal:"Family and income protection", complexityScore:51, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1010", firstName:"Lucas", lastName:"Brown", age:31, occupation:"Accountant", maritalStatus:"Partnered", dependants:0, annualIncome:104000, existingCover:"Employer default cover", healthConditions:["None disclosed"], lifestyleFactors:["Non-smoker"], insuranceGoal:"Protect future mortgage plans", complexityScore:22, recommendedPath:"Continue digitally" },
+        { id:"TAL-1011", firstName:"Ava", lastName:"Thompson", age:46, occupation:"Nurse Unit Manager", maritalStatus:"Married", dependants:2, annualIncome:128000, existingCover:"Life and trauma cover", healthConditions:["Back injury history"], lifestyleFactors:["Shift work"], insuranceGoal:"Update cover after promotion", complexityScore:63, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1012", firstName:"Henry", lastName:"Singh", age:57, occupation:"Restaurant Owner", maritalStatus:"Married", dependants:0, annualIncome:172000, existingCover:"Old retail life policy", healthConditions:["High cholesterol","Past cardiac investigation"], lifestyleFactors:["Long working hours"], insuranceGoal:"Business debt and succession protection", complexityScore:88, recommendedPath:"Advisor consultation required" },
+        { id:"TAL-1013", firstName:"Zara", lastName:"Ibrahim", age:25, occupation:"Graduate Lawyer", maritalStatus:"Single", dependants:0, annualIncome:87000, existingCover:"No existing cover", healthConditions:["None disclosed"], lifestyleFactors:["Social sport"], insuranceGoal:"Starter income protection", complexityScore:16, recommendedPath:"Continue digitally" },
+        { id:"TAL-1014", firstName:"Jack", lastName:"Morgan", age:39, occupation:"Mining Supervisor", maritalStatus:"Partnered", dependants:1, annualIncome:210000, existingCover:"Super cover only", healthConditions:["None disclosed"], lifestyleFactors:["Remote work","Hazardous occupation"], insuranceGoal:"Income protection and life cover", complexityScore:66, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1015", firstName:"Lily", lastName:"Evans", age:34, occupation:"Physiotherapist", maritalStatus:"Married", dependants:1, annualIncome:115000, existingCover:"Income protection", healthConditions:["None disclosed"], lifestyleFactors:["Active lifestyle"], insuranceGoal:"Add life and TPD cover", complexityScore:37, recommendedPath:"Continue digitally" },
+        { id:"TAL-1016", firstName:"Marcus", lastName:"Lee", age:50, occupation:"Airline Pilot", maritalStatus:"Married", dependants:3, annualIncome:255000, existingCover:"Multiple employer-linked covers", healthConditions:["None disclosed"], lifestyleFactors:["Aviation occupation","International travel"], insuranceGoal:"Consolidate cover and protect family", complexityScore:71, recommendedPath:"Advisor consultation required" },
+        { id:"TAL-1017", firstName:"Hannah", lastName:"Scott", age:42, occupation:"HR Consultant", maritalStatus:"Single parent", dependants:1, annualIncome:132000, existingCover:"Basic super cover", healthConditions:["Thyroid condition, managed"], lifestyleFactors:["Non-smoker"], insuranceGoal:"Protect child and income", complexityScore:56, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1018", firstName:"Ben", lastName:"Fraser", age:30, occupation:"UX Designer", maritalStatus:"Partnered", dependants:0, annualIncome:108000, existingCover:"Default super cover", healthConditions:["None disclosed"], lifestyleFactors:["Rock climbing"], insuranceGoal:"Income protection and trauma option", complexityScore:32, recommendedPath:"Continue digitally" },
+        { id:"TAL-1019", firstName:"Claire", lastName:"Bennett", age:55, occupation:"Pharmacist", maritalStatus:"Married", dependants:0, annualIncome:146000, existingCover:"Life cover, benefit amount unknown", healthConditions:["Family history of cancer"], lifestyleFactors:["Non-smoker"], insuranceGoal:"Review trauma and estate cover", complexityScore:62, recommendedPath:"Advisor review recommended" },
+        { id:"TAL-1020", firstName:"Ryan", lastName:"O'Connor", age:60, occupation:"Self-employed Builder", maritalStatus:"Married", dependants:2, annualIncome:168000, existingCover:"Lapsed income protection", healthConditions:["Knee replacement","High BMI"], lifestyleFactors:["Manual work","Occasional smoker"], insuranceGoal:"Rebuild cover before retirement transition", complexityScore:91, recommendedPath:"Advisor consultation required" }
+      ];
+      const demoIds = ["TAL-1001","TAL-1002","TAL-1003"];
+      const stages = ["About You","Goals","Cover","Health","Review"];
+      let activeId = "TAL-1002";
+      let stage = 0;
+
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => new Intl.NumberFormat("en-AU", { style:"currency", currency:"AUD", maximumFractionDigits:0 }).format(n);
+      const profile = () => profiles.find(p => p.id === activeId) || profiles[0];
+      const band = (score) => score < 40 ? "simple" : score < 72 ? "moderate" : "complex";
+      function route(p) {
+        const b = band(p.complexityScore);
+        const base = b === "simple"
+          ? { code:"Route A", title:"Low complexity", path:"Continue digitally", color:"var(--sage-700)", confidence:92, next:["Continue online","Confirm cover amount","Fast-track application"], reasons:["No major health disclosures","Simple cover need","Low missing-information risk"] }
+          : b === "moderate"
+          ? { code:"Route B", title:"Medium complexity", path:"Advisor review recommended", color:"var(--amber)", confidence:87, next:["Schedule advisor call","Pre-fill recommendation notes","Fast-track review"], reasons:["Dependants or debt protection need","Coverage gap identified","Advisor can improve fit"] }
+          : { code:"Route C", title:"High complexity", path:"Advisor consultation required", color:"var(--red)", confidence:83, next:["Advisor consultation","Clarify underwriting details","Prepare tailored advice"], reasons:["Health or lifestyle disclosures","Coverage and ownership complexity","Specialist advice required"] };
+        const health = p.healthConditions[0] === "None disclosed" ? "No disclosed medical conditions require follow-up." : `Health follow-up: ${p.healthConditions.join(", ")}.`;
+        return { ...base, confidence: Math.min(96, base.confidence + Math.round((100 - p.complexityScore) / 20)), reasons:[health, ...base.reasons] };
+      }
+      function ai(p) {
+        const b = band(p.complexityScore);
+        const hasDeps = p.dependants > 0;
+        const hasHealth = p.healthConditions[0] !== "None disclosed";
+        const hasExisting = !p.existingCover.toLowerCase().includes("no existing");
+        const deps = hasDeps ? `${p.dependants} dependant${p.dependants === 1 ? "" : "s"}` : "no dependants";
+        return {
+          summary: `${p.firstName} is a ${p.age}-year-old ${p.occupation.toLowerCase()} with ${deps}, seeking ${p.insuranceGoal.toLowerCase()}. The journey is currently ${b} complexity and the recommended path is ${p.recommendedPath.toLowerCase()}.`,
+          risks: [
+            hasHealth ? `Clarify disclosed health items: ${p.healthConditions.join(", ")}.` : "No disclosed health conditions, so underwriting friction appears low.",
+            /smoker|manual|travel|hazard|motor|remote|aviation|climbing/i.test(p.lifestyleFactors.join(" ")) ? `Lifestyle factor to confirm: ${p.lifestyleFactors.join(", ")}.` : `Lifestyle profile appears straightforward: ${p.lifestyleFactors.join(", ")}.`,
+            hasDeps ? "Dependants increase the need for clear sum-insured reasoning." : "Cover need can likely be explained with simple income continuity framing."
+          ],
+          missing: [
+            hasExisting ? "Confirm benefit amounts and ownership of existing cover." : "Confirm whether any cover exists outside super.",
+            hasDeps ? "Confirm mortgage balance and education-cost expectations." : "Confirm monthly expenses and savings buffer.",
+            hasHealth ? "Confirm dates, medication, follow-up, and current stability." : "Confirm no recent investigations or pending tests."
+          ],
+          questions: [
+            "What outcome would make this cover feel worth it for you?",
+            hasDeps ? "If income stopped for six months, what would your family need protected first?" : "How many months of income would you want protected while you recover?",
+            hasExisting ? "Would you like us to compare existing cover before recommending changes?" : "Would you prefer a lean starter option or broader protection?"
+          ],
+          products: [hasDeps ? "Life cover sized to family and debt needs" : "Starter life cover with flexible increases", "Income protection with benefit-period options", hasHealth ? "Underwriting pre-check before formal application" : "TPD and trauma consideration as optional layers"],
+          opportunities: [hasDeps ? "TPD discussion is timely because family protection is the stated goal." : "Income protection is a natural first product based on age and goal.", p.annualIncome > 150000 ? "Higher income creates room to discuss benefit caps and quality of cover." : "Lead with affordability and flexible staging.", b === "complex" ? "Use consultation to turn uncertainty into trust and reduce drop-off." : "Use digital completion to shorten the call and maintain momentum."],
+          coaching: b === "simple" ? "Keep the conversation short and confidence-building. Confirm assumptions, explain value, and help the customer finish online." : b === "moderate" ? "Lead with family outcomes, avoid jargon, and use the pre-filled facts to spend the call on trade-offs rather than data collection." : "Acknowledge complexity early. Explain that the advisor is here to reduce uncertainty, not add paperwork.",
+          notes: `Customer intent: ${p.insuranceGoal}. Current profile: ${p.age}, ${p.occupation}, ${p.maritalStatus}, ${deps}. Existing cover: ${p.existingCover}. Complexity score ${p.complexityScore}/100. Recommended next step: ${p.recommendedPath}.`,
+          followUps: ["Send customer summary link", "Attach comparison of current and recommended cover", b === "complex" ? "Book underwriting clarification call" : "Confirm preferred cover level"]
+        };
+      }
+      function renderStageTabs() {
+        $("stage-tabs").innerHTML = stages.map((s, i) => `<button class="${i === stage ? "active" : i < stage ? "done" : ""}" data-stage="${i}">${s}</button>`).join("");
+        document.querySelectorAll("[data-stage]").forEach(btn => btn.onclick = () => { stage = Number(btn.dataset.stage); render(); });
+        $("stage-bar").style.width = `${((stage + 1) / stages.length) * 100}%`;
+      }
+      function field(label, value, helper = "") {
+        return `<label class="field"><span>${label}</span><span class="value">${value}</span>${helper ? `<em>${helper}</em>` : ""}</label>`;
+      }
+      function renderDiscovery(p, out) {
+        let html = "";
+        if (stage === 0) {
+          html = `<div class="title-row"><span class="iconbox">◎</span><div><h3>About You</h3><p>A few basics replace the repetitive first 20 minutes of a traditional quote call.</p></div></div><div class="fields">${field("Age", p.age)}${field("Occupation", p.occupation)}${field("Family status", p.maritalStatus)}${p.dependants > 0 ? field("Dependants", p.dependants, "Shown because family protection needs can change cover amounts.") : ""}${field("Annual income", fmt(p.annualIncome))}</div>`;
+        } else if (stage === 1) {
+          html = `<div class="title-row"><span class="iconbox">♡</span><div><h3>Goals</h3><p>Customers describe outcomes in plain English before product details.</p></div></div><div class="fields">${field("Insurance goal", p.insuranceGoal, "Why we ask this: goals help route simple requests digitally and reserve advisor time for higher-value advice.")}<div class="goal-options"><div class="active">Protect income</div><div class="${p.dependants ? "active" : ""}">Protect family</div><div class="${p.existingCover.includes("No") ? "" : "active"}">Review existing cover</div></div></div>`;
+        } else if (stage === 2) {
+          html = `<div class="title-row"><span class="iconbox">◇</span><div><h3>Cover</h3><p>Existing cover is captured once, then reused by routing and advisor copilot.</p></div></div><div class="fields">${field("Existing cover", p.existingCover)}${field("Preferred support", p.recommendedPath, "Conditional routing updates as the profile changes.")}</div>`;
+        } else if (stage === 3) {
+          html = `<div class="title-row"><span class="iconbox">+</span><div><h3>Health and Lifestyle</h3><p>Sensitive questions are explained clearly so customers understand the purpose.</p></div></div><div class="fields">${field("Health questionnaire", p.healthConditions.join(", "), "Why we ask this: health answers help identify whether an advisor should prepare underwriting follow-up.")}${field("Lifestyle factors", p.lifestyleFactors.join(", "))}</div>`;
+        } else {
+          html = `<div class="title-row"><span class="iconbox">✓</span><div><h3>Review</h3><p>The customer can review the pre-call summary before it is shared with an advisor.</p></div></div><div class="fields">${field("Customer", `${p.firstName} ${p.lastName}`)}${field("Goal", p.insuranceGoal)}${field("Existing cover", p.existingCover)}${field("Recommended path", p.recommendedPath)}</div>`;
+        }
+        $("stage-content").innerHTML = html;
+        $("assistant-copy").innerHTML = [
+          ["Why we ask this", stage === 0 ? "Age, income, and family status help estimate appropriate cover without making you repeat these basics on a call." : stage === 3 ? "Health and lifestyle answers help route you to the right support early, before underwriting slows things down." : "Your answers help match the journey to your needs and keep advisor time focused on advice."],
+          ["Reassurance", "This usually takes 10-15 minutes. You can save and resume any time, and an advisor only steps in when it adds value."],
+          ["For your advisor", out.summary]
+        ].map(([title, body]) => `<div class="bubble"><strong>${title}</strong><span>${body}</span></div>`).join("");
+        $("next-stage").textContent = stage === stages.length - 1 ? "See Routing" : "Continue";
+      }
+      function renderRouting(p) {
+        const r = route(p);
+        $("route-top").style.background = r.color;
+        $("route-code").textContent = r.code;
+        $("route-title").textContent = r.title;
+        $("route-path").textContent = r.path;
+        $("recommended-path").textContent = p.recommendedPath;
+        $("confidence").textContent = `${r.confidence}%`;
+        $("confidence-gauge").style.setProperty("--score", `${r.confidence}%`);
+        $("route-reasons").innerHTML = r.reasons.map(reason => `<div class="reason"><span class="tick">✓</span><span>${reason}</span></div>`).join("");
+        $("route-next").innerHTML = r.next.map((n, i) => `<div class="next"><b>${i + 1}</b><span>${n}</span></div>`).join("");
+      }
+      function renderAdvisor(p, out) {
+        $("avatar").textContent = `${p.firstName[0]}${p.lastName[0]}`;
+        $("customer-name").textContent = `${p.firstName} ${p.lastName}`;
+        $("customer-id").textContent = p.id;
+        const deps = `${p.maritalStatus}, ${p.dependants} dependant${p.dependants === 1 ? "" : "s"}`;
+        $("facts").innerHTML = [["Age", p.age],["Occupation", p.occupation],["Family", deps],["Goal", p.insuranceGoal],["Income", fmt(p.annualIncome)]].map(([l, v]) => `<div class="fact"><small>${l}</small><strong>${v}</strong></div>`).join("");
+        $("intent-summary").textContent = out.summary;
+        $("score-line").style.width = `${p.complexityScore}%`;
+        $("score-label").textContent = `${p.complexityScore}/100 - ${band(p.complexityScore)}`;
+        $("risk-insights").innerHTML = out.risks.map(x => `<div class="insight">${x}</div>`).join("");
+        $("missing-info").innerHTML = out.missing.map((x, i) => `<div class="check-row"><span class="check-dot">${i === 0 ? "!" : "✓"}</span><span>${x}</span></div>`).join("");
+        $("actions").innerHTML = ["Ask next question","Recommend cover option","Send summary link","Schedule callback"].map(x => `<button class="action-btn">${x}<span>→</span></button>`).join("");
+        const block = (title, arr) => `<div class="copilot-block"><strong>${title}</strong><ul>${arr.map(x => `<li><span style="color:var(--orange)">✓</span>${x}</li>`).join("")}</ul></div>`;
+        $("copilot").innerHTML = block("Recommended questions", out.questions) + block("Suggested cover options", out.products) + block("Sales opportunities", out.opportunities) + `<div class="copilot-block"><strong>Advisor coaching</strong><p style="margin-top:10px;color:rgba(247,241,230,.76);line-height:1.55">${out.coaching}</p></div>`;
+        $("call-notes").textContent = out.notes;
+        $("followups").innerHTML = out.followUps.map(x => `<div>${x}</div>`).join("");
+      }
+      function render() {
+        const p = profile();
+        const out = ai(p);
+        document.querySelectorAll("[data-profile]").forEach(btn => btn.classList.toggle("active", btn.dataset.profile === activeId));
+        $("profile-select").value = activeId;
+        $("presenter").textContent = p.presenterDescription || "Synthetic profile selected from the 20-customer mock dataset.";
+        renderStageTabs();
+        renderDiscovery(p, out);
+        renderRouting(p);
+        renderAdvisor(p, out);
+      }
+      document.querySelectorAll("[data-scroll]").forEach(btn => btn.onclick = () => document.getElementById(btn.dataset.scroll).scrollIntoView({ behavior:"smooth", block:"start" }));
+      document.querySelectorAll("[data-profile]").forEach(btn => btn.onclick = () => { activeId = btn.dataset.profile; stage = 0; render(); });
+      $("profile-select").innerHTML = profiles.map(p => `<option value="${p.id}">${p.firstName} ${p.lastName} - ${p.recommendedPath}</option>`).join("");
+      $("profile-select").onchange = (e) => { activeId = e.target.value; stage = 0; render(); };
+      $("back-stage").onclick = () => { stage = Math.max(0, stage - 1); render(); };
+      $("next-stage").onclick = () => { if (stage === stages.length - 1) document.getElementById("routing").scrollIntoView({ behavior:"smooth" }); else { stage += 1; render(); } };
+      $("demo-button").onclick = $("hero-demo").onclick = () => { activeId = "TAL-1002"; stage = 0; render(); document.getElementById("discovery").scrollIntoView({ behavior:"smooth" }); };
+      render();
+    </script>
+  </body>
+</html>
