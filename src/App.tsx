@@ -77,7 +77,7 @@ function Hero({ onStart, onDemo }: { onStart: () => void; onDemo: () => void }) 
         </div>
       </div>
       <div className="animate-fade rounded-lg border border-charcoal/10 bg-paper p-3 shadow-soft">
-        <img src="/images/tally-hero-ai-journey.png" alt="AI assisted insurance journey with advisor support" className="aspect-[16/10] w-full rounded-lg object-cover" />
+        <img src={`${import.meta.env.BASE_URL}images/tally-hero-ai-journey.png`} alt="AI assisted insurance journey with advisor support" className="aspect-[16/10] w-full rounded-lg object-cover" />
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <MiniProof icon="clock" label="10-15 min" body="Customer-guided discovery" />
           <MiniProof icon="spark" label="AI guided" body="Support without replacing humans" />
